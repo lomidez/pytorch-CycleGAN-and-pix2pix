@@ -169,7 +169,7 @@ class CycleGANModel(BaseModel):
 #                 b[0][0][lip_h][lip_w] = 2.3
         #ts_gan = torch.from_numpy(b)
         
-        weights_0 = netD(self.create_weights().to.(self.device))
+        weights_0 = netD(self.create_weights().to(self.device))
         
         pred_real = netD(real)
         loss_D_real = (self.criterionGAN(pred_real, True)* weights_0)[weights_0 > 0].mean()
