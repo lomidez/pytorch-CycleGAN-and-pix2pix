@@ -103,7 +103,7 @@ class CycleGANModel(BaseModel):
     def create_weights(self):
         cuda0 = torch.device('cuda:0')
         #a = np.ones((1,3,256,256))
-        a = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
+        a = torch.ones([1, 3, 256, 256], dtype=torch.float, device=cuda0)
         h = a.shape[2]
         w = a.shape[3]
         for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
