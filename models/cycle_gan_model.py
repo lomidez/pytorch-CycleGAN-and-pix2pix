@@ -197,8 +197,8 @@ class CycleGANModel(BaseModel):
         #########################################
         import numpy as np   
         weights_cycle = self.create_weights()
-        weights_GA = self.netG_A(self.create_weights())
-        weights_GB = self.netG_B(self.create_weights())
+#         weights_GA = self.netG_A(self.create_weights())
+#         weights_GB = self.netG_B(self.create_weights())
         
         #weights_1 = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
         #weights_1 = torch.ones(3, 256, 256) #create test weights all 1s
@@ -219,11 +219,11 @@ class CycleGANModel(BaseModel):
             self.loss_idt_B = 0
 
         # GAN loss D_A(G_A(A))
-        self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)* weights_GA)[weights_GA > 0].mean()
-#        self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)).mean()
+#         self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)* weights_GA)[weights_GA > 0].mean()
+        self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)).mean()
         # GAN loss D_B(G_B(B))
-        self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)* weights_GB)[weights_GB > 0].mean()
-#        self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)).mean()
+#         self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)* weights_GB)[weights_GB > 0].mean()
+        self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)).mean()
         #############################################
 #         # Forward cycle loss || G_B(G_A(A)) - A||
 #         self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
