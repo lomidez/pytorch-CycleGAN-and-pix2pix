@@ -99,6 +99,29 @@ class CycleGANModel(BaseModel):
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
+    
+    def create_weights(self):
+        cuda0 = torch.device('cuda:0')
+        #a = np.ones((1,3,256,256))
+        a = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
+        h = a.shape[0]
+        w = a.shape[1]
+        for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
+            for eye_left in range(int(w*2/10 ),int(w*4/10)):
+                a[0][0][eye_h][eye_left] = 2.3
+                a[0][1][eye_h][eye_left] = 2.3
+                a[0][2][eye_h][eye_left] = 2.3
+            for eye_right in range(int(w*6/10 ),int(w*8/10)):
+                a[0][0][eye_h][eye_right] = 2.3
+                a[0][1][eye_h][eye_right] = 2.3
+                a[0][2][eye_h][eye_right] = 2.3
+
+        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
+            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
+                a[0][0][lip_h][lip_w] = 2.3
+                a[0][1][lip_h][lip_w] = 2.3
+                a[0][2][lip_h][lip_w] = 2.3
+        return a
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -133,22 +156,20 @@ class CycleGANModel(BaseModel):
         """
         # Real
         #####################################################################
-        cuda0 = torch.device('cuda:0')
-        b = torch.ones([1, 1, 30, 30], dtype=torch.int, device=cuda0)
-        #b = torch.ones((1,1,256,256))
-        h = b.shape[2]
-        w = b.shape[3]
-        for eye_h in range(int(h*2/10),int(h*4.5/10)):
-            for eye_left in range(int(w*2/10 ),int(w*4/10)):
-                b[0][0][eye_h][eye_left] = 2.3
-            for eye_right in range(int(w*6/10 ),int(w*8/10)):
-                b[0][0][eye_h][eye_right] = 2.3
+#         h = b.shape[2]
+#         w = b.shape[3]
+#         for eye_h in range(int(h*2/10),int(h*4.5/10)):
+#             for eye_left in range(int(w*2/10 ),int(w*4/10)):
+#                 b[0][0][eye_h][eye_left] = 2.3
+#             for eye_right in range(int(w*6/10 ),int(w*8/10)):
+#                 b[0][0][eye_h][eye_right] = 2.3
         
-        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
-            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
-                b[0][0][lip_h][lip_w] = 2.3
+#         for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
+#             for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
+#                 b[0][0][lip_h][lip_w] = 2.3
         #ts_gan = torch.from_numpy(b)
-        weights_0 = b
+        
+        weights_0 = netD(self.create_weights())
         
         pred_real = netD(real)
         loss_D_real = (self.criterionGAN(pred_real, True)* weights_0)[weights_0 > 0].mean()
@@ -174,47 +195,9 @@ class CycleGANModel(BaseModel):
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         #########################################
-        import numpy as np
-        cuda0 = torch.device('cuda:0')
-        #a = np.ones((1,3,256,256))
-        a = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
-        h = a.shape[0]
-        w = a.shape[1]
-        for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
-            for eye_left in range(int(w*2/10 ),int(w*4/10)):
-                a[0][0][eye_h][eye_left] = 2.3
-                a[0][1][eye_h][eye_left] = 2.3
-                a[0][2][eye_h][eye_left] = 2.3
-            for eye_right in range(int(w*6/10 ),int(w*8/10)):
-                a[0][0][eye_h][eye_right] = 2.3
-                a[0][1][eye_h][eye_right] = 2.3
-                a[0][2][eye_h][eye_right] = 2.3
-
-        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
-            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
-                a[0][0][lip_h][lip_w] = 2.3
-                a[0][1][lip_h][lip_w] = 2.3
-                a[0][2][lip_h][lip_w] = 2.3
-                
-        weights_1 = a
-        
-        
-        
-        b = torch.ones([1, 1, 30, 30], dtype=torch.int, device=cuda0)
-        #b = torch.ones((1,1,256,256))
-        h = b.shape[2]
-        w = b.shape[3]
-        for eye_h in range(int(h*2/10),int(h*4.5/10)):
-            for eye_left in range(int(w*2/10 ),int(w*4/10)):
-                b[0][0][eye_h][eye_left] = 2.3
-            for eye_right in range(int(w*6/10 ),int(w*8/10)):
-                b[0][0][eye_h][eye_right] = 2.3
-        
-        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
-            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
-                b[0][0][lip_h][lip_w] = 2.3
-        #ts_gan = torch.from_numpy(b)
-        weights_0 = b
+        import numpy as np   
+        weights_1 = self.create_weights()
+        weights_0 = netD(self.create_weights())
         
         #weights_1 = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
         #weights_1 = torch.ones(3, 256, 256) #create test weights all 1s
