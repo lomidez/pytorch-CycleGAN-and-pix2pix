@@ -104,8 +104,8 @@ class CycleGANModel(BaseModel):
         cuda0 = torch.device('cuda:0')
         #a = np.ones((1,3,256,256))
         a = torch.ones([1, 3, 256, 256], dtype=torch.int, device=cuda0)
-        h = a.shape[0]
-        w = a.shape[1]
+        h = a.shape[2]
+        w = a.shape[3]
         for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
             for eye_left in range(int(w*2/10 ),int(w*4/10)):
                 a[0][0][eye_h][eye_left] = 2.3
