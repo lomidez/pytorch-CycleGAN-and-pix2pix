@@ -5,6 +5,47 @@ from .base_model import BaseModel
 from . import networks
 #my comment
 
+#a is cycle weight
+cuda0 = torch.device('cuda:0')
+a = torch.ones([1, 3, 256, 256], dtype=torch.float, device=cuda0)
+h = a.shape[2]
+w = a.shape[3]
+for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
+    for eye_left in range(int(w*2/10 ),int(w*4/10)):
+        a[0][0][eye_h][eye_left] = 10
+        a[0][1][eye_h][eye_left] = 10
+        a[0][2][eye_h][eye_left] = 10
+    for eye_right in range(int(w*6/10 ),int(w*8/10)):
+        a[0][0][eye_h][eye_right] = 10
+        a[0][1][eye_h][eye_right] = 10
+        a[0][2][eye_h][eye_right] = 10
+
+for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
+    for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
+        a[0][0][lip_h][lip_w] = 10
+        a[0][1][lip_h][lip_w] = 10
+        a[0][2][lip_h][lip_w] = 10
+
+#b is gan weight
+b = torch.ones([1, 1, 256, 256], dtype=torch.float, device=cuda0)
+h = b.shape[2]
+w = b.shape[3]
+for eye_h in range(int(h*2/10),int(h*4.5/10)):
+    for eye_left in range(int(w*2/10 ),int(w*4/10)):
+        b[0][0][eye_h][eye_left] = 10
+    for eye_right in range(int(w*6/10 ),int(w*8/10)):
+        b[0][0][eye_h][eye_right] = 10
+
+for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
+    for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
+        b[0][0][lip_h][lip_w] = 10
+
+pool1 = torch.nn.AvgPool2d(4)
+pool2 = torch.nn.AvgPool2d(2)
+pool3 = torch.nn.AvgPool2d(3,stride=1)
+b = pool1(b)
+b = pool2(b)
+b = pool3(b)
 
 class CycleGANModel(BaseModel):
     """
@@ -100,53 +141,16 @@ class CycleGANModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
     
-    def create_weights_cycle(self):
-        cuda0 = torch.device('cuda:0')
-        a = torch.ones([1, 3, 256, 256], dtype=torch.float, device=cuda0)
-        h = a.shape[2]
-        w = a.shape[3]
-        for eye_h in range(int(h*2/10 ),int(h*4.5/10)):
-            for eye_left in range(int(w*2/10 ),int(w*4/10)):
-                a[0][0][eye_h][eye_left] = 10
-                a[0][1][eye_h][eye_left] = 10
-                a[0][2][eye_h][eye_left] = 10
-            for eye_right in range(int(w*6/10 ),int(w*8/10)):
-                a[0][0][eye_h][eye_right] = 10
-                a[0][1][eye_h][eye_right] = 10
-                a[0][2][eye_h][eye_right] = 10
+#     def create_weights_cycle(self):
 
-        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
-            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
-                a[0][0][lip_h][lip_w] = 10
-                a[0][1][lip_h][lip_w] = 10
-                a[0][2][lip_h][lip_w] = 10
-        return a
     
-    def create_weights_gan(self):
+#     def create_weights_gan(self):
         #Code for GAN loss (in discriminator)
-        cuda0 = torch.device('cuda:0')
-        b = torch.ones([1, 1, 256, 256], dtype=torch.float, device=cuda0)
-        h = b.shape[2]
-        w = b.shape[3]
-        for eye_h in range(int(h*2/10),int(h*4.5/10)):
-            for eye_left in range(int(w*2/10 ),int(w*4/10)):
-                b[0][0][eye_h][eye_left] = 10
-            for eye_right in range(int(w*6/10 ),int(w*8/10)):
-                b[0][0][eye_h][eye_right] = 10
 
-        for lip_h in range(int(h*7/10 ),int(h*8.5/10)): 
-            for lip_w in range(int(w*3.5/10 ),int(w*6.5/10)):
-                b[0][0][lip_h][lip_w] = 10
-        return b
+
     
-    def weights_pool(self,w):
-        pool1 = torch.nn.AvgPool2d(4)
-        pool2 = torch.nn.AvgPool2d(2)
-        pool3 = torch.nn.AvgPool2d(3,stride=1)
-        w = pool1(w)
-        w = pool2(w)
-        w = pool3(w)
-        return w
+#     def weights_pool(self,w):
+
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -181,7 +185,8 @@ class CycleGANModel(BaseModel):
         """
         # Real
         #####################################################################
-        weights_gan = self.weights_pool(self.create_weights_gan())
+#         weights_gan = self.weights_pool(self.create_weights_gan())
+        weights_gan = b
         pred_real = netD(real)
         loss_D_real = (self.criterionGAN(pred_real, True)* weights_gan)[weights_gan > 0].mean()
         # Fake
@@ -207,8 +212,10 @@ class CycleGANModel(BaseModel):
         """Calculate the loss for generators G_A and G_B"""
         #########################################
         import numpy as np   
-        weights_cycle = self.create_weights_cycle()
-        weights_gan = self.weights_pool(self.create_weights_gan())
+#         weights_cycle = self.create_weights_cycle()
+#         weights_gan = self.weights_pool(self.create_weights_gan())
+        weights_cycle = a
+        weights_gan = b
         #########################################
         lambda_idt = self.opt.lambda_identity
         lambda_A = self.opt.lambda_A
