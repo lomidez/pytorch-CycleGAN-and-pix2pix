@@ -236,12 +236,16 @@ class CycleGANModel(BaseModel):
          
         
         pred_real = netD(real)
+        #before: 
+        loss_D_real = self.criterionGAN(pred_real, True)
         #loss_D_real = (self.criterionGAN(pred_real, True)* weights_0)[weights_0 > 0].mean()
-        loss_D_real = (self.criterionGAN(pred_real, True)).mean()
+        #loss_D_real = (self.criterionGAN(pred_real, True)).mean()
         # Fake
         pred_fake = netD(fake.detach())
+        #before: 
+        loss_D_fake = self.criterionGAN(pred_fake, False)
         #loss_D_fake = (self.criterionGAN(pred_fake, False)* weights_0)[weights_0 > 0].mean()
-        loss_D_fake = (self.criterionGAN(pred_fake, False)).mean()
+        #loss_D_fake = (self.criterionGAN(pred_fake, False)).mean()
         #########################################################################
         # Combined loss and calculate gradients
         loss_D = (loss_D_real + loss_D_fake) * 0.5
@@ -327,11 +331,16 @@ class CycleGANModel(BaseModel):
             self.loss_idt_B = 0
 
         # GAN loss D_A(G_A(A))
+        #before:
+        self.loss_G_A = self.criterionGAN(self.netD_A(self.fake_B), True)
         #self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)* weights_0)[weights_0 > 0].mean()
-        self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)).mean()
+        #self.loss_G_A = (self.criterionGAN(self.netD_A(self.fake_B), True)).mean()
+        
         # GAN loss D_B(G_B(B))
+        #before:
+        self.loss_G_B = self.criterionGAN(self.netD_B(self.fake_A), True)
         #self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)* weights_0)[weights_0 > 0].mean()
-        self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)).mean()
+        #self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)).mean()
         #############################################
 #         # Forward cycle loss || G_B(G_A(A)) - A||
 #         self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
