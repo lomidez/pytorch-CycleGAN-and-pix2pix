@@ -168,8 +168,9 @@ class CycleGANModel(BaseModel):
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             ################
-            #before: self.criterionCycle = torch.nn.L1Loss()
-            self.criterionCycle = torch.nn.L1Loss(reduction = "none") #changing loss function for generator!!!
+            #before: 
+            self.criterionCycle = torch.nn.L1Loss()
+            #self.criterionCycle = torch.nn.L1Loss(reduction = "none") #changing loss function for generator!!!
             ################
             self.criterionIdt = torch.nn.L1Loss()
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
@@ -342,16 +343,16 @@ class CycleGANModel(BaseModel):
         #self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)* weights_0)[weights_0 > 0].mean()
         #self.loss_G_B = (self.criterionGAN(self.netD_B(self.fake_A), True)).mean()
         #############################################
-#         # Forward cycle loss || G_B(G_A(A)) - A||
-#         self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
-#         # Backward cycle loss || G_A(G_B(B)) - B||
-#         self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
+        # Forward cycle loss || G_B(G_A(A)) - A||
+        self.loss_cycle_A = self.criterionCycle(self.rec_A, self.real_A) * lambda_A
+        # Backward cycle loss || G_A(G_B(B)) - B||
+        self.loss_cycle_B = self.criterionCycle(self.rec_B, self.real_B) * lambda_B
         # Forward cycle loss || G_B(G_A(A)) - A||
         #self.loss_cycle_A = (self.criterionCycle(self.rec_A, self.real_A)* weights_1)[weights_1 > 0].mean() * lambda_A 
-        self.loss_cycle_A = (self.criterionCycle(self.rec_A, self.real_A)).mean() * lambda_A 
+        #self.loss_cycle_A = (self.criterionCycle(self.rec_A, self.real_A)).mean() * lambda_A 
         # Backward cycle loss || G_A(G_B(B)) - B||
         #self.loss_cycle_B = (self.criterionCycle(self.rec_B, self.real_B) * weights_1)[weights_1 > 0].mean() * lambda_B
-        self.loss_cycle_B = (self.criterionCycle(self.rec_B, self.real_B)).mean() * lambda_B
+        #self.loss_cycle_B = (self.criterionCycle(self.rec_B, self.real_B)).mean() * lambda_B
         ############################################
         # combined loss and calculate gradients
         self.loss_G = self.loss_G_A + self.loss_G_B + self.loss_cycle_A + self.loss_cycle_B + self.loss_idt_A + self.loss_idt_B
