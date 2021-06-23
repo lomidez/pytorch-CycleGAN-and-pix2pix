@@ -169,8 +169,8 @@ class CycleGANModel(BaseModel):
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)  # define GAN loss.
             ################
             #before: 
-            self.criterionCycle = torch.nn.L1Loss()
-            #self.criterionCycle = torch.nn.L1Loss(reduction = "none") #changing loss function for generator!!!
+            #self.criterionCycle = torch.nn.L1Loss()
+            self.criterionCycle = torch.nn.L1Loss(reduction = "none") #changing loss function for generator!!!
             ################
             self.criterionIdt = torch.nn.L1Loss()
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
